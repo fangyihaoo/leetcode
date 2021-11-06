@@ -91,7 +91,18 @@ SELECT AVG(under20),AVG(age20_40),AVG(age40_60),AVG(over60)
 Product round:
 ---------
 You are a DS on the friending team. The overall number of friend accepts on the platform has gone down by 5% in June. How would you look into this?
+  1. Check the data first to see if it is edogenous or exogenous. We can look into historical date to see if there is a seasonal pattern.
+  2. Check the overall number of friend request to see if the it drops or not. If drops, the issue may comes from the friend request side, then we can check the 
+  add friend button to see if there is any changes around it before June. If yes, we can check it CTR for add friends button and if there is a deline then it might 
+  be the reason.
+  3. New feature launched, primacy effect.
+  4. also cohort users based on platform they are using and also the region, to see if it is platform specific or region specific decline.
 ---------
-We have a suggestion to add more relatives in the friend algorithm. How would you test if this is a good or a bad idea?-
+We have a suggestion to add more relatives in the friend algorithm. How would you test if this is a good or a bad idea?
+  1. The goal of this new feature is to increase the number of user friends, to increase the users engagement.
+  2. The metircs we propose are to check two things. 1. if the new features work or not. 2. the long term goal like increasing engagement.
+  3. For the first one, we can use CTR of requests send, or friends added, especially for those who interact with the user within one day (effecive friend).
+  For the second one, we can use DAU or time spent. 
+  4. Tradeoff to measure (number of relatives) (best metric, accepted friend request per day)
 
 

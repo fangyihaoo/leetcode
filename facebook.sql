@@ -40,22 +40,58 @@ GROUP BY user_id
 HAVING COUNT(*)=7
 ) as t2
 
-2. Table:
-Friending: send_id || receive_id || send_time || accept_time || country
-Age: user_id || age_group
+2. table_name: friending
++-----------------+-------------+------------------------------------------+
+| column         | data_type | description |
++-----------------+-------------+------------------------------------------+
+| sender_id      | BIGINT    | Facebook Id for user sending request |
+| receiver_id    | BIGINT    | Facebook Id for user receiving request |
+| sent_date      | STRING    | Date when request was sent |
+| accepted_date  | STRING    | Date when request was accepted, NULL if not accepted |
+| sender_country | STRING    | Facebook Identifier
++---------------+---------------+------------------------------------------+
+sender_id  | receiver_id | sent_date  | accepted_date | sender_country
+1          | 2           | 2019-09-15 | 2019-09-18    | US
+1          | 3           | 2019-10-15 | 2019-10-15    | US
+2          | 3           | 2019-10-15 | NULL          | CA
+
+table_name: age
++---------------+---------------+---------------------------+
+| column    | data_type | description |
++---------------+---------------+---------------------------+
+| userid    | BIGINT    | Facebook Id for user |
+| age_group | STRING    | 'under20', '20-40', '40-60', 'over60' |
++---------------+---------------+---------------------------+
+SAMPLE ROWS:
+userid | age_group
+1234   | '20-40'
+5678   | '40-60'
+9010   | 'under20'
 
 Q1 Same-day acceptance rate in the last 7 days.
 
-SELECT SUM(if(TIMESTAMPDIFF(hour,send_time,accept_time)<=24,1,0))*1.0 / COUNT(*) as acpt_rate
+SELECT SUM(if(sent_date=accepted_date,1,0))*1.0 / COUNT(*) as acpt_rate
 FROM Friending
-WHERE send_time > CURDATE() - INTERVAL 7 DAY
+WHERE CAST(send_date AS DATE) BETWEEN ... AND ...
+GROUP BY send_date
 
-Q2 Average requests sent per user for each age groups.
-SELECT AVG(group_count)
-FROM
-(SELECT b.age_group, COUNT(*) as group_count
-FROM Friending a JOiN Age b ON a.send_id = b.user_id
-GROUP BY b.age_group
-) t
+Q2 Average number of friendship requests sent per user over the past week by age groups.
+
+WITH T AS (
+SELECT a.send_id,
+SUM(IF(b.age_group = 'under20',1,0)) as under20,
+SUM(IF(b.age_group = '20-40',1,0)) as age20_40,
+SUM(IF(b.age_group = '40-60',1,0)) as age40_60,
+SUM(IF(b.age_group = 'over60',1,0)) as over60,
+FROM Friending as a JOIN ON Age as b ON a.sender_id = b.user_id
+GROUP BY send_id) 
+SELECT AVG(under20),AVG(age20_40),AVG(age40_60),AVG(over60) 
+  FROM T
+
+Product round:
+---------
+You are a DS on the friending team. The overall number of friend accepts on the platform has gone down by 5% in June. How would you look into this?
+---------
+We have a suggestion to add more relatives in the friend algorithm. How would you test if this is a good or a bad idea?-
 
 

@@ -67,9 +67,18 @@ userid | age_group
 1234   | '20-40'
 5678   | '40-60'
 9010   | 'under20'
+  
+table_name: fraud, columns: user_id, fraud_tyoe
+
 
 Q1 Same-day acceptance rate in the last 7 days.
+  SELECT sender_id, SUM(IF(accepted_date = sent_date, 1,0))/COUNT(*) as percentage
+  FROM friending
+  WHERE send_date >= CURDATE() - INTERVAL 7 DAY
+  GROUP BY sender_id
 
+or 
+  
 SELECT SUM(if(sent_date=accepted_date,1,0))*1.0 / COUNT(*) as acpt_rate
 FROM Friending
 WHERE CAST(send_date AS DATE) BETWEEN ... AND ...
@@ -88,6 +97,17 @@ GROUP BY send_id)
 SELECT AVG(under20),AVG(age20_40),AVG(age40_60),AVG(over60) 
   FROM T
 
+Q3.What is percentage of sender without fraud in all senders?
+  SELECT 
+  (SELECT COUNT(DISTINCT sender_id)
+  FROM friending as a JOIN fraud as b ON a.sender_id = b.user_id
+  WHERE b.fraud_type = 1)
+  /
+  (SELECT COUNT(DISTINCT sender_id)
+   FROM friending
+  )
+  as fraud_rate
+  
 Product round:
 ---------
 You are a DS on the friending team. The overall number of friend accepts on the platform has gone down by 5% in June. How would you look into this?
